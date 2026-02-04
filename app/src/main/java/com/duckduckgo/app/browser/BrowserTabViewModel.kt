@@ -588,7 +588,9 @@ class BrowserTabViewModel @Inject constructor(
                 siteHttpErrorHandler.assignErrorsAndClearCache(value)
             }
         }
-    private var previousUrl: String? = null
+
+    @VisibleForTesting
+    internal var previousUrl: String? = null
     private lateinit var tabId: String
     private var webNavigationState: WebNavigationState? = null
     private var httpsUpgraded = false
@@ -842,7 +844,13 @@ class BrowserTabViewModel @Inject constructor(
         siteLiveData = tabRepository.retrieveSiteData(tabId)
         site = siteLiveData.value
 
-        initialUrl?.let { buildSiteFactory(it, stillExternal = isExternal) }
+        initialUrl?.let {
+            // initialUrl is the previousUrl from previous session unless it's launched from an external app
+            if (androidBrowserConfig.disableTrackerAnimationOnRestart().isEnabled() && !isExternal) {
+                previousUrl = it
+            }
+            buildSiteFactory(it, stillExternal = isExternal)
+        }
     }
 
     fun setIsCustomTab(isCustomTab: Boolean) {

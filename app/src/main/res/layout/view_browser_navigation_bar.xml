@@ -52,7 +52,8 @@
                     android:layout_gravity="center"
                     android:contentDescription="@string/newTabMenuItem"
                     android:scaleType="center"
-                    android:src="@drawable/ic_add_24" />
+                    android:src="@drawable/ic_add_24"
+                    android:saveEnabled="false" />
             </FrameLayout>
 
             <FrameLayout
@@ -70,7 +71,8 @@
                     android:layout_gravity="center"
                     android:contentDescription="@string/autofillManagementScreenTitle"
                     android:scaleType="center"
-                    android:src="@drawable/ic_key_24" />
+                    android:src="@drawable/ic_key_24"
+                    android:saveEnabled="false" />
             </FrameLayout>
 
         </FrameLayout>
@@ -92,6 +94,7 @@
                 android:layout_height="@dimen/bottomNavIcon"
                 android:layout_gravity="center"
                 android:contentDescription="@string/bookmarksMenuTitle"
+                android:saveEnabled="false"
                 android:scaleType="center"
                 android:src="@drawable/ic_bookmarks_24" />
         </FrameLayout>
@@ -111,6 +114,7 @@
                 android:id="@+id/fireIconImageView"
                 android:layout_width="@dimen/bottomNavIcon"
                 android:layout_height="@dimen/bottomNavIcon"
+                android:saveEnabled="false"
                 android:layout_gravity="center"
                 android:contentDescription="@string/fireMenu"
                 android:scaleType="center"
@@ -124,6 +128,7 @@
 
         <com.duckduckgo.browser.ui.tabs.NewTabSwitcherButton
             android:id="@+id/tabsButton"
+            android:saveEnabled="false"
             android:layout_width="@dimen/toolbarIcon"
             android:layout_height="@dimen/toolbarIcon" />
 
@@ -145,6 +150,7 @@
                 android:layout_gravity="center"
                 android:contentDescription="@string/browserPopupMenu"
                 android:scaleType="center"
+                android:saveEnabled="false"
                 android:src="@drawable/ic_menu_vertical_24" />
 
             <View

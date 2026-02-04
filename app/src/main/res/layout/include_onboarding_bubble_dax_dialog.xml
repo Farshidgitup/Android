@@ -81,6 +81,7 @@
                     android:id="@+id/daxBubbleDialogTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:saveEnabled="false"
                     app:typography="h2"
                     tools:text="@string/onboardingSearchDaxDialogTitle" />
 
@@ -93,6 +94,7 @@
                         android:id="@+id/hiddenTextCta"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:saveEnabled="false"
                         android:visibility="invisible"
                         app:typography="body1"
                         tools:text="@string/onboardingBubbleExperimentSearchDaxDialogDescription"
@@ -105,6 +107,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:focusable="true"
+                        android:saveEnabled="false"
                         android:textColor="?attr/daxColorPrimaryText" />
                 </FrameLayout>
 
@@ -114,6 +117,7 @@
                     android:layout_height="96dp"
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
+                    android:saveEnabled="false"
                     android:visibility="gone"
                     app:srcCompat="@drawable/ic_privacy_pro_128"
                     tools:visibility="visible" />

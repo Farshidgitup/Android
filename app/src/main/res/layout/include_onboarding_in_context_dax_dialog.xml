@@ -98,6 +98,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/keyline_1"
+                        android:saveEnabled="false"
                         android:text="@string/onboardingEndDaxDialogTitle"
                         app:typography="h2" />
 
@@ -109,6 +110,7 @@
                             android:id="@+id/hiddenTextCta"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:saveEnabled="false"
                             android:visibility="invisible"
                             app:typography="body1" />
 
@@ -119,6 +121,7 @@
                             android:layout_height="match_parent"
                             android:clickable="true"
                             android:focusable="true"
+                            android:saveEnabled="false"
                             android:textColor="?attr/daxColorPrimaryText"
                             tools:text="That’s private search. Fast, clean results. No trackers. Fewer ads.
                                     👆 Next, try visiting a site! I’ll block trackers so they can’t spy on you." />
@@ -170,6 +173,7 @@
                         android:id="@+id/daxBubbleDialogTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:saveEnabled="false"
                         android:text="@string/onboardingSitesSuggestionsDaxDialogTitle"
                         app:typography="h2" />
 
@@ -196,6 +200,7 @@
                             android:layout_height="wrap_content"
                             android:clickable="true"
                             android:focusable="true"
+                            android:saveEnabled="false"
                             android:textColor="?attr/daxColorPrimaryText" />
                     </FrameLayout>
 

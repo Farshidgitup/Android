@@ -44,7 +44,8 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:hint="@string/findInPageHint" />
+        android:hint="@string/findInPageHint"
+        android:saveEnabled="false" />
 
     <com.duckduckgo.common.ui.view.text.DaxTextView
         android:id="@+id/findInPageMatches"

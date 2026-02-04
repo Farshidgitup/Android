@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="@dimen/keyline_2"
-            app:srcCompat="@drawable/ic_arrow_left_24"/>
+            app:srcCompat="@drawable/ic_arrow_left_24" />
 
     </FrameLayout>
 
@@ -49,6 +49,7 @@
         android:imeOptions="flagNoExtractUi|actionGo|flagNoPersonalizedLearning"
         android:inputType="textUri|textNoSuggestions"
         android:maxLines="1"
+        android:saveEnabled="false"
         android:selectAllOnFocus="true"
         android:textColor="?attr/daxColorPrimaryText"
         android:textColorHint="?attr/daxColorSecondaryText"
@@ -72,6 +73,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_close_24"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 
 </merge>

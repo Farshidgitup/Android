@@ -30,12 +30,12 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/autoCompleteSuggestionsList"
-        android:saveEnabled="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/daxColorBrowserOverlay"
         android:clipToPadding="false"
         android:elevation="2dp"
+        android:saveEnabled="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:itemCount="3"
         tools:listitem="@layout/item_autocomplete_search_suggestion"
@@ -80,9 +80,9 @@
             android:id="@+id/topBrowserOutlineStroke"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
+            android:layout_alignParentTop="true"
             android:background="?attr/daxColorShade"
-            android:elevation="20dp"
-            android:layout_alignParentTop="true" />
+            android:elevation="20dp" />
 
         <FrameLayout
             android:id="@+id/daxDialogOnboardingCtaContent"
@@ -105,7 +105,8 @@
             android:id="@+id/swipeRefreshContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/daxDialogOnboardingCtaContent">
+            android:layout_below="@id/daxDialogOnboardingCtaContent"
+            android:saveEnabled="false">
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -137,9 +138,9 @@
             android:id="@+id/bottomBrowserOutlineStroke"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
+            android:layout_alignParentBottom="true"
             android:background="?attr/daxColorShadeSolid"
-            android:elevation="1dp"
-            android:layout_alignParentBottom="true" />
+            android:elevation="1dp" />
 
     </RelativeLayout>
 
@@ -148,10 +149,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:elevation="12dp"
+        android:visibility="gone"
         app:behavior_hideable="true"
         app:behavior_skipCollapsed="true"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        android:visibility="gone" />
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
     <com.duckduckgo.app.browser.navigation.bar.view.BrowserNavigationBarView
         android:id="@+id/navigationBar"

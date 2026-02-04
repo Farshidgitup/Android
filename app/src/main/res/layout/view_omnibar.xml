@@ -28,8 +28,8 @@
         android:id="@+id/rootContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@android:color/transparent"
+        android:orientation="vertical"
         app:layout_scrollFlags="scroll|enterAlways|snap">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -58,10 +58,10 @@
                 android:layout_width="0dp"
                 android:layout_height="?attr/actionBarSize"
                 android:clipChildren="false"
-                app:contentInsetEnd="0dp"
-                app:contentInsetStart="0dp"
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
+                app:contentInsetEnd="0dp"
+                app:contentInsetStart="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/iconsContainer"
                 app:layout_constraintStart_toEndOf="@id/duckAiSidebar"
@@ -125,6 +125,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:importantForAccessibility="no"
+                                android:saveEnabled="false"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="@id/omniBarContentContainer"
                                 app:layout_constraintTop_toTopOf="parent" />
@@ -217,12 +218,12 @@
                                 android:id="@+id/duckAIHeader"
                                 android:layout_width="0dp"
                                 android:layout_height="match_parent"
-                                android:orientation="horizontal"
-                                android:gravity="center"
                                 android:background="?daxColorWindow"
+                                android:gravity="center"
+                                android:orientation="horizontal"
+                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintTop_toTopOf="parent">
 
                                 <ImageView
@@ -230,18 +231,18 @@
                                     android:layout_width="@dimen/toolbarIconSize"
                                     android:layout_height="@dimen/toolbarIconSize"
                                     android:layout_gravity="center"
+                                    android:layout_marginStart="@dimen/keyline_1"
                                     android:importantForAccessibility="no"
                                     android:scaleType="fitCenter"
-                                    android:layout_marginStart="@dimen/keyline_1"
                                     app:srcCompat="@drawable/ic_ai_chat_omnibar_24"
                                     tools:visibility="visible" />
 
                                 <com.duckduckgo.common.ui.view.text.DaxTextView
                                     android:id="@+id/aiTitle"
-                                    android:layout_marginStart="@dimen/keyline_1"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/duck_chat_title"/>
+                                    android:layout_marginStart="@dimen/keyline_1"
+                                    android:text="@string/duck_chat_title" />
 
                             </LinearLayout>
 
@@ -446,10 +447,10 @@
                 <include
                     android:id="@+id/newCustomTabToolbarContainer"
                     layout="@layout/include_new_custom_tab_toolbar"
-                    android:layout_marginTop="@dimen/omnibarCardMarginTop"
-                    android:layout_marginBottom="@dimen/omnibarCardMarginBottom"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/omnibarCardMarginTop"
+                    android:layout_marginBottom="@dimen/omnibarCardMarginBottom"
                     android:visibility="gone" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -459,8 +460,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/toolbarIcon"
                 android:layout_marginTop="@dimen/omnibarCardMarginTop"
-                android:layout_marginBottom="@dimen/omnibarCardMarginBottom"
                 android:layout_marginEnd="@dimen/keyline_1"
+                android:layout_marginBottom="@dimen/omnibarCardMarginBottom"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/toolbar"

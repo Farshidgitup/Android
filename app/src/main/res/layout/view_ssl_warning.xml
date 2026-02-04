@@ -15,23 +15,24 @@
   -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/errorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="?attr/daxColorBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="150dp"
-        android:paddingBottom="50dp" >
+        android:paddingBottom="50dp">
 
         <ImageView
             android:id="@+id/sslAlertImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
+            android:saveEnabled="false"
             android:src="@drawable/ic_shield_alert_128"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -44,6 +45,7 @@
             android:layout_marginTop="@dimen/keyline_5"
             android:breakStrategy="balanced"
             android:gravity="center"
+            android:saveEnabled="false"
             android:text="@string/sslErrorTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -54,9 +56,10 @@
             android:id="@+id/sslErrorHeadline"
             android:layout_width="@dimen/sslWarningTextWidth"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/keyline_5"
             android:layout_marginTop="@dimen/keyline_4"
             android:gravity="center"
-            android:layout_marginHorizontal="@dimen/keyline_5"
+            android:saveEnabled="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sslErrorTitle"
@@ -67,19 +70,21 @@
             android:id="@+id/sslErrorLeaveSiteCTA"
             android:layout_width="360dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/keyline_6"
             android:layout_marginHorizontal="@dimen/keyline_5"
+            android:layout_marginTop="@dimen/keyline_6"
+            android:saveEnabled="false"
             android:text="@string/sslErrorLeaveCTA"
             app:daxButtonSize="large"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sslErrorHeadline"/>
+            app:layout_constraintTop_toBottomOf="@+id/sslErrorHeadline" />
 
         <com.duckduckgo.common.ui.view.button.DaxButtonGhost
             android:id="@+id/sslErrorAdvancedCTA"
             android:layout_width="360dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/keyline_5"
+            android:saveEnabled="false"
             android:text="@string/sslErrorAdvancedCTA"
             app:daxButtonSize="large"
             app:layout_constraintEnd_toEndOf="parent"
@@ -91,38 +96,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="visible"
-            app:constraint_referenced_ids="sslErrorAdvancedDivider, sslErrorExpandedHeadline, sslErrorExpandedMessage, sslErrorAcceptCta"  />
+            app:constraint_referenced_ids="sslErrorAdvancedDivider, sslErrorExpandedHeadline, sslErrorExpandedMessage, sslErrorAcceptCta" />
 
         <com.duckduckgo.common.ui.view.divider.HorizontalDivider
             android:id="@+id/sslErrorAdvancedDivider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/keyline_5"
             app:defaultPadding="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sslErrorAdvancedCTA"
-            android:layout_marginTop="@dimen/keyline_5"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
+            app:layout_constraintTop_toBottomOf="@+id/sslErrorAdvancedCTA" />
 
         <com.duckduckgo.common.ui.view.text.DaxTextView
             android:id="@+id/sslErrorExpandedHeadline"
             android:layout_width="@dimen/sslWarningTextWidth"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/keyline_5"
             android:layout_marginHorizontal="@dimen/keyline_5"
+            android:layout_marginTop="@dimen/keyline_5"
             android:gravity="center"
+            android:saveEnabled="false"
+            android:text="@string/sslErrorExpandedHeadline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sslErrorAdvancedDivider"
-            app:typography="body2"
-            android:text="@string/sslErrorExpandedHeadline" />
+            app:typography="body2" />
 
         <com.duckduckgo.common.ui.view.text.DaxTextView
             android:id="@+id/sslErrorExpandedMessage"
             android:layout_width="@dimen/sslWarningTextWidth"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/keyline_4"
             android:layout_marginHorizontal="@dimen/keyline_5"
+            android:layout_marginTop="@dimen/keyline_4"
             android:gravity="center"
+            android:saveEnabled="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sslErrorExpandedHeadline"
@@ -133,9 +140,10 @@
             android:id="@+id/sslErrorAcceptCta"
             android:layout_width="@dimen/sslWarningTextWidth"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/keyline_4"
             android:layout_marginHorizontal="@dimen/keyline_5"
+            android:layout_marginTop="@dimen/keyline_4"
             android:gravity="center"
+            android:saveEnabled="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sslErrorExpandedMessage"

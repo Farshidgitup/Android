@@ -35,6 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/broken_site_prompt_title"
+        android:saveEnabled="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:typography="h3" />
@@ -44,6 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/broken_site_prompt_description"
+        android:saveEnabled="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleText"
         app:typography="body2" />
@@ -53,6 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/broken_site_prompt_button_report"
+        android:saveEnabled="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bodyText"
         android:layout_marginTop="@dimen/keyline_2"
@@ -62,6 +65,7 @@
         android:id="@+id/dismissButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:saveEnabled="false"
         android:text="@string/broken_site_prompt_button_dismiss"
         android:layout_marginStart="@dimen/keyline_2"
         app:layout_constraintStart_toEndOf="@id/reportButton"

@@ -15,9 +15,9 @@
   -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/maliciousSiteLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/maliciousSiteLayout"
     android:background="?attr/daxColorBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,106 +30,113 @@
             android:id="@+id/alertImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/keyline_5"
             android:importantForAccessibility="no"
+            android:saveEnabled="false"
             android:src="@drawable/malware_site_128"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginHorizontal="@dimen/keyline_5"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.duckduckgo.common.ui.view.text.DaxTextView
             android:id="@+id/errorTitle"
             android:layout_width="@dimen/sslWarningTextWidth"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/keyline_5"
             android:layout_marginTop="@dimen/keyline_5"
             android:breakStrategy="balanced"
             android:gravity="center"
+            android:saveEnabled="false"
             android:text="@string/maliciousSiteTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/alertImage"
-            app:typography="h2"
-            android:layout_marginHorizontal="@dimen/keyline_5"/>
+            app:typography="h2" />
 
         <com.duckduckgo.common.ui.view.text.DaxTextView
             android:id="@+id/errorHeadline"
             android:layout_width="@dimen/sslWarningTextWidth"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/keyline_5"
             android:layout_marginTop="@dimen/keyline_4"
             android:gravity="center"
+            android:saveEnabled="false"
+            android:text="@string/maliciousSiteMalwareHeadline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/errorTitle"
-            app:typography="body1"
-            android:text="@string/maliciousSiteMalwareHeadline"
-            android:layout_marginHorizontal="@dimen/keyline_5"/>
+            app:typography="body1" />
 
 
         <com.duckduckgo.common.ui.view.button.DaxButtonPrimary
             android:id="@+id/leaveSiteCTA"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/keyline_5"
             android:layout_marginTop="@dimen/keyline_6"
+            android:saveEnabled="false"
             android:text="@string/maliciousSiteLeaveCTA"
             app:daxButtonSize="large"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/errorHeadline"
-            android:layout_marginHorizontal="@dimen/keyline_5"/>
+            app:layout_constraintTop_toBottomOf="@+id/errorHeadline" />
 
         <com.duckduckgo.common.ui.view.button.DaxButtonGhost
             android:id="@+id/advancedCTA"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/keyline_5"
+            android:saveEnabled="false"
             android:text="@string/sslErrorAdvancedCTA"
             app:daxButtonSize="large"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/leaveSiteCTA"
-            android:layout_marginHorizontal="@dimen/keyline_5"/>
+            app:layout_constraintTop_toBottomOf="@+id/leaveSiteCTA" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/advancedGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="advancedDivider, expandedHeadline, expandedCTA"/>
+            app:constraint_referenced_ids="advancedDivider, expandedHeadline, expandedCTA" />
 
         <com.duckduckgo.common.ui.view.divider.HorizontalDivider
             android:id="@+id/advancedDivider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/keyline_5"
             app:defaultPadding="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/advancedCTA"
-            android:layout_marginTop="@dimen/keyline_5"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
+            app:layout_constraintTop_toBottomOf="@+id/advancedCTA" />
 
         <com.duckduckgo.common.ui.view.text.DaxTextView
             android:id="@+id/expandedHeadline"
             android:layout_width="@dimen/sslWarningTextWidth"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/keyline_5"
             android:layout_marginTop="@dimen/keyline_5"
             android:gravity="center"
+            android:saveEnabled="false"
+            android:text="@string/maliciousSiteExpandedHeadline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/advancedDivider"
-            app:typography="body2"
-            android:text="@string/maliciousSiteExpandedHeadline"
-            android:layout_marginHorizontal="@dimen/keyline_5"/>
+            app:typography="body2" />
 
         <com.duckduckgo.common.ui.view.text.DaxTextView
             android:id="@+id/expandedCTA"
             android:layout_width="@dimen/sslWarningTextWidth"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/keyline_5"
             android:layout_marginTop="@dimen/keyline_5"
             android:gravity="center"
+            android:saveEnabled="false"
+            android:text="@string/maliciousSiteExpandedCTA"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/expandedHeadline"
-            app:typography="body2"
-            android:text="@string/maliciousSiteExpandedCTA"
-            android:layout_marginHorizontal="@dimen/keyline_5"/>
+            app:typography="body2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

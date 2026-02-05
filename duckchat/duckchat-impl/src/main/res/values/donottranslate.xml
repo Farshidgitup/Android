@@ -25,4 +25,7 @@
     <string name="duckAIContextualAttachPageContent">Attach Page Content</string>
     <string name="duckAIContextualSummarizePrompt">Summarize the context of this page</string>
 
+    <!-- Input Screen -->
+    <string name="input_screen_recent_chats_header">Recent Chats</string>
+
 </resources>

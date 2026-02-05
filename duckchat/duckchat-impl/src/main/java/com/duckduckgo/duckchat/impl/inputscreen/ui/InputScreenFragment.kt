@@ -455,8 +455,11 @@ class InputScreenFragment : DuckDuckGoFragment(R.layout.fragment_input_screen) {
                     inputScreenButtons.setSendButtonVisible(true)
                     inputModeWidget.setInputScreenButtonsVisible(true)
                 }
-
-                if (viewModel.visibilityState.value.showSearchLogo && !viewModel.visibilityState.value.autoCompleteSuggestionsVisible) {
+                // TODO review and simplify logo visibility state and interaction to avoid updating it in multiple places.
+                if (viewModel.chatSuggestions.value.isNotEmpty()) {
+                    // If we have suggestions we hide the logo.
+                    binding.ddgLogoContainer.isVisible = false
+                } else if (viewModel.visibilityState.value.showSearchLogo && !viewModel.visibilityState.value.autoCompleteSuggestionsVisible) {
                     binding.ddgLogoContainer.isVisible = true
                 } else if (viewModel.visibilityState.value.showChatLogo) {
                     binding.ddgLogo.progress = 1f
@@ -629,8 +632,7 @@ class InputScreenFragment : DuckDuckGoFragment(R.layout.fragment_input_screen) {
         val logoWasVisible = binding.ddgLogoContainer.isVisible && binding.ddgLogoContainer.alpha > 0f
 
         val shouldBeVisible = when {
-            state.showSearchLogo -> true
-            state.searchMode -> false
+            state.searchMode -> state.showSearchLogo
             else -> state.showChatLogo
         }
 

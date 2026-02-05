@@ -43,6 +43,7 @@ import com.duckduckgo.common.utils.SingleLiveEvent
 import com.duckduckgo.common.utils.extensions.toBinaryString
 import com.duckduckgo.duckchat.api.DuckAiFeatureState
 import com.duckduckgo.duckchat.api.DuckChat
+import com.duckduckgo.duckchat.impl.feature.DuckChatFeature
 import com.duckduckgo.duckchat.impl.inputscreen.ui.InputScreenConfigResolver
 import com.duckduckgo.duckchat.impl.inputscreen.ui.command.Command
 import com.duckduckgo.duckchat.impl.inputscreen.ui.command.Command.EditWithSelectedQuery
@@ -58,6 +59,7 @@ import com.duckduckgo.duckchat.impl.inputscreen.ui.state.InputFieldState
 import com.duckduckgo.duckchat.impl.inputscreen.ui.state.InputScreenVisibilityState
 import com.duckduckgo.duckchat.impl.inputscreen.ui.state.SubmitButtonIcon
 import com.duckduckgo.duckchat.impl.inputscreen.ui.state.SubmitButtonIconState
+import com.duckduckgo.duckchat.impl.inputscreen.ui.suggestions.ChatSuggestion
 import com.duckduckgo.duckchat.impl.inputscreen.ui.viewmodel.UserSelectedMode.CHAT
 import com.duckduckgo.duckchat.impl.inputscreen.ui.viewmodel.UserSelectedMode.NONE
 import com.duckduckgo.duckchat.impl.inputscreen.ui.viewmodel.UserSelectedMode.SEARCH
@@ -108,6 +110,7 @@ import kotlinx.coroutines.withContext
 import logcat.LogPriority.WARN
 import logcat.asLog
 import logcat.logcat
+import java.time.LocalDateTime
 
 enum class UserSelectedMode {
     SEARCH,
@@ -125,6 +128,7 @@ class InputScreenViewModel @AssistedInject constructor(
     private val autoCompleteSettings: AutoCompleteSettings,
     private val duckChat: DuckChat,
     private val duckAiFeatureState: DuckAiFeatureState,
+    private val duckChatFeature: DuckChatFeature,
     private val pixel: Pixel,
     private val sessionStore: InputScreenSessionStore,
     private val inputScreenDiscoveryFunnel: InputScreenDiscoveryFunnel,
@@ -168,6 +172,9 @@ class InputScreenViewModel @AssistedInject constructor(
 
     private val _submitButtonIconState = MutableStateFlow(SubmitButtonIconState(SubmitButtonIcon.SEARCH))
     val submitButtonIconState: StateFlow<SubmitButtonIconState> = _submitButtonIconState.asStateFlow()
+
+    private val _chatSuggestions = MutableStateFlow<List<ChatSuggestion>>(emptyList())
+    val chatSuggestions: StateFlow<List<ChatSuggestion>> = _chatSuggestions.asStateFlow()
 
     private val refreshSuggestions = MutableSharedFlow<Unit>()
 
@@ -287,6 +294,16 @@ class InputScreenViewModel @AssistedInject constructor(
                 it.copy(showSearchLogo = shouldShowSearchLogo)
             }
         }.launchIn(viewModelScope)
+
+        if (duckChatFeature.aiChatSuggestions().isEnabled()) {
+            _chatSuggestions
+                .map { it.isEmpty() }
+                .onEach { shouldShowChatLogo ->
+                    _visibilityState.update {
+                        it.copy(showChatLogo = shouldShowChatLogo)
+                    }
+                }.launchIn(viewModelScope)
+        }
     }
 
     fun onActivityResume() {
@@ -396,7 +413,6 @@ class InputScreenViewModel @AssistedInject constructor(
         chatInputTextState.value = query.trim()
         _visibilityState.update {
             it.copy(
-                showChatLogo = true,
                 newLineButtonVisible = query.isNotBlank(),
             )
         }
@@ -479,6 +495,11 @@ class InputScreenViewModel @AssistedInject constructor(
             fireModeSwitchedPixel(directionToSearch = false)
         }
         userSelectedMode = CHAT
+
+        // Load suggestions when chat tab is selected.
+        if (duckChatFeature.aiChatSuggestions().isEnabled()) {
+            loadChatSuggestions()
+        }
     }
 
     fun onSearchSelected() {
@@ -688,6 +709,49 @@ class InputScreenViewModel @AssistedInject constructor(
         userSelectedMode == SEARCH &&
         inputScreenConfigResolver.mainButtonsEnabled() &&
         omnibarRepository.omnibarType != OmnibarType.SPLIT
+
+    private fun loadChatSuggestions() {
+        viewModelScope.launch(dispatchers.io()) {
+            // TODO: Replace with real chat history and proper update
+            _chatSuggestions.value = getTestChatSuggestions()
+        }
+    }
+
+    // Temporary for testing the UI
+    private fun getTestChatSuggestions(): List<ChatSuggestion> {
+        return listOf(
+            ChatSuggestion(
+                chatId = "1",
+                title = "How to make sourdough bread",
+                lastEdit = LocalDateTime.now().minusHours(2),
+                pinned = true,
+            ),
+            ChatSuggestion(
+                chatId = "2",
+                title = "Best practices for Android development",
+                lastEdit = LocalDateTime.now().minusHours(5),
+                pinned = false,
+            ),
+            ChatSuggestion(
+                chatId = "3",
+                title = "What is quantum computing? Is it true that it will break all cryptography algorithms?",
+                lastEdit = LocalDateTime.now().minusDays(1),
+                pinned = false,
+            ),
+            ChatSuggestion(
+                chatId = "4",
+                title = "Recipe for chocolate chip cookies",
+                lastEdit = LocalDateTime.now().minusDays(2),
+                pinned = true,
+            ),
+            ChatSuggestion(
+                chatId = "5",
+                title = "Tips for learning a new language",
+                lastEdit = LocalDateTime.now().minusDays(3),
+                pinned = false,
+            ),
+        )
+    }
 
     class InputScreenViewModelProviderFactory(
         private val assistedFactory: InputScreenViewModelFactory,

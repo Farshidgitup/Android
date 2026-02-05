@@ -1,5 +1,6 @@
 package com.duckduckgo.duckchat.impl.ui.inputscreen
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -22,6 +23,7 @@ import com.duckduckgo.common.test.CoroutineTestRule
 import com.duckduckgo.common.utils.extensions.toBinaryString
 import com.duckduckgo.duckchat.api.DuckAiFeatureState
 import com.duckduckgo.duckchat.api.DuckChat
+import com.duckduckgo.duckchat.impl.feature.DuckChatFeature
 import com.duckduckgo.duckchat.impl.inputscreen.ui.InputScreenConfigResolver
 import com.duckduckgo.duckchat.impl.inputscreen.ui.command.Command
 import com.duckduckgo.duckchat.impl.inputscreen.ui.command.Command.AnimateLogoToProgress
@@ -36,9 +38,12 @@ import com.duckduckgo.duckchat.impl.inputscreen.ui.metrics.discovery.InputScreen
 import com.duckduckgo.duckchat.impl.inputscreen.ui.metrics.usage.InputScreenSessionUsageMetric
 import com.duckduckgo.duckchat.impl.inputscreen.ui.session.InputScreenSessionStore
 import com.duckduckgo.duckchat.impl.inputscreen.ui.state.SubmitButtonIcon
+import com.duckduckgo.duckchat.impl.inputscreen.ui.suggestions.ChatSuggestion
 import com.duckduckgo.duckchat.impl.inputscreen.ui.viewmodel.InputScreenViewModel
 import com.duckduckgo.duckchat.impl.pixel.DuckChatPixelName
 import com.duckduckgo.duckchat.impl.pixel.DuckChatPixelParameters
+import com.duckduckgo.feature.toggles.api.FakeFeatureToggleFactory
+import com.duckduckgo.feature.toggles.api.Toggle
 import com.duckduckgo.history.api.NavigationHistory
 import com.duckduckgo.voice.api.VoiceSearchAvailability
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -89,6 +94,7 @@ class InputScreenViewModelTest {
     private val omnibarRepository: OmnibarRepository = mock()
 
     private val duckAiFeatureState: DuckAiFeatureState = mock()
+    private val duckChatFeature = FakeFeatureToggleFactory.create(DuckChatFeature::class.java)
     private val fullScreenModeDisabledFlow = MutableStateFlow(false)
     private val fullScreenModeEnabledFlow = MutableStateFlow(true)
     private val duckChatURL = "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=5"
@@ -128,6 +134,7 @@ class InputScreenViewModelTest {
             inputScreenConfigResolver = inputScreenConfigResolver,
             omnibarRepository = omnibarRepository,
             duckAiFeatureState = duckAiFeatureState,
+            duckChatFeature = duckChatFeature,
         )
 
     @Test
@@ -2190,5 +2197,78 @@ class InputScreenViewModelTest {
                 DuckChatPixelName.DUCK_CHAT_OPEN_AUTOCOMPLETE_EXPERIMENTAL,
                 parameters = mapOf(DuckChatPixelParameters.WAS_USED_BEFORE to false.toBinaryString()),
             )
+        }
+
+    // Chat Suggestions Tests
+
+    @SuppressLint("DenyListedApi")
+    @Test
+    fun `when onChatSelected called first time and feature enabled then chat suggestions are loaded`() =
+        runTest {
+            duckChatFeature.aiChatSuggestions().setRawStoredState(Toggle.State(enable = true))
+            val viewModel = createViewModel()
+
+            viewModel.chatSuggestions.test {
+                assertEquals(emptyList<ChatSuggestion>(), awaitItem())
+
+                viewModel.onChatSelected()
+                advanceUntilIdle()
+
+                val suggestions = awaitItem()
+                assertTrue(suggestions.isNotEmpty())
+            }
+        }
+
+    @SuppressLint("DenyListedApi")
+    @Test
+    fun `when onChatSelected called and feature disabled then chat suggestions remain empty`() =
+        runTest {
+            duckChatFeature.aiChatSuggestions().setRawStoredState(Toggle.State(enable = false))
+            val viewModel = createViewModel()
+
+            viewModel.chatSuggestions.test {
+                assertEquals(emptyList<ChatSuggestion>(), awaitItem())
+
+                viewModel.onChatSelected()
+                advanceUntilIdle()
+
+                expectNoEvents()
+            }
+        }
+
+    @SuppressLint("DenyListedApi")
+    @Test
+    fun `when chat suggestions are empty then showChatLogo should be true`() =
+        runTest {
+            duckChatFeature.aiChatSuggestions().setRawStoredState(Toggle.State(enable = false))
+            val viewModel = createViewModel()
+
+            viewModel.visibilityState.test {
+                val state = awaitItem()
+                assertTrue(state.showChatLogo)
+            }
+        }
+
+    @SuppressLint("DenyListedApi")
+    @Test
+    fun `when chat suggestions feature enabled then reactive flow updates showChatLogo`() =
+        runTest {
+            duckChatFeature.aiChatSuggestions().setRawStoredState(Toggle.State(enable = true))
+            val viewModel = createViewModel()
+
+            viewModel.visibilityState.test {
+                val initialState = awaitItem()
+                assertTrue(initialState.showChatLogo)
+
+                viewModel.onChatSelected()
+                advanceUntilIdle()
+
+                // First emission: searchMode update from onChatSelected()
+                awaitItem()
+
+                // Second emission: showChatLogo update from reactive flow
+                val updatedState = awaitItem()
+                assertFalse(updatedState.showChatLogo)
+            }
         }
 }

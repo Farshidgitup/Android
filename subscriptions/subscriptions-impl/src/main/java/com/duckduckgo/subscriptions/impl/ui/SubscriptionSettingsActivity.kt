@@ -239,8 +239,9 @@ class SubscriptionSettingsActivity : DuckDuckGoActivity() {
                 }
                 binding.changePlan.setSecondaryText(subscriptionRenewalDetailsRes)
 
-                // Active status without a Free Trial
-            } else {
+                // Override with pending plan message if there's a deferred change
+                showPendingPlanMessageIfPresent(viewState)
+            } else { // Active status without a Free Trial
                 binding.subscriptionActiveStatusTextView.text = getString(string.subscriptionStatusSubscribed)
 
                 val status = when (viewState.status) {
@@ -256,16 +257,7 @@ class SubscriptionSettingsActivity : DuckDuckGoActivity() {
                 binding.changePlan.setSecondaryText(getString(subscriptionsDataStringResId, status, viewState.date))
 
                 // Override with pending plan message if there's a deferred change
-                if (viewState.pendingPlanDisplayName != null && viewState.pendingEffectiveDate != null) {
-                    val changeType = if (viewState.isPendingDowngrade == true) {
-                        getString(string.planChangeDowngrade)
-                    } else {
-                        getString(string.planChangeUpgrade)
-                    }
-                    binding.changePlan.setSecondaryText(
-                        getString(string.subscriptionPendingPlanChange, changeType, viewState.pendingPlanDisplayName, viewState.pendingEffectiveDate),
-                    )
-                }
+                showPendingPlanMessageIfPresent(viewState)
             }
 
             when (viewState.platform.lowercase()) {
@@ -445,6 +437,20 @@ class SubscriptionSettingsActivity : DuckDuckGoActivity() {
                 screenTitle = getString(string.privacyPolicyAndTermsOfService),
             ),
         )
+    }
+
+    private fun showPendingPlanMessageIfPresent(viewState: ViewState.Ready) {
+        if (viewState.pendingPlanDisplayNameResId != null && viewState.pendingEffectiveDate != null) {
+            val changeTypeString = if (viewState.isPendingDowngrade == true) {
+                string.subscriptionPendingPlanChangeDowngrade
+            } else {
+                string.subscriptionPendingPlanChangeUpgrade
+            }
+            val pendingPlanDisplayName = getString(viewState.pendingPlanDisplayNameResId)
+            binding.changePlan.setSecondaryText(
+                getString(changeTypeString, pendingPlanDisplayName, viewState.pendingEffectiveDate),
+            )
+        }
     }
 
     companion object {

@@ -76,7 +76,6 @@ import com.duckduckgo.duckchat.impl.inputscreen.ui.state.SubmitButtonIcon.SEND
 import com.duckduckgo.duckchat.impl.inputscreen.ui.tabs.InputScreenPagerAdapter
 import com.duckduckgo.duckchat.impl.inputscreen.ui.view.InputModeWidget
 import com.duckduckgo.duckchat.impl.inputscreen.ui.view.InputScreenButtons
-import com.duckduckgo.duckchat.impl.inputscreen.ui.view.SwipeableRecyclerView
 import com.duckduckgo.duckchat.impl.inputscreen.ui.viewmodel.InputScreenViewModel
 import com.duckduckgo.duckchat.impl.inputscreen.ui.viewmodel.InputScreenViewModel.InputScreenViewModelFactory
 import com.duckduckgo.duckchat.impl.inputscreen.ui.viewmodel.InputScreenViewModel.InputScreenViewModelProviderFactory
@@ -250,7 +249,6 @@ class InputScreenFragment : DuckDuckGoFragment(R.layout.fragment_input_screen) {
         binding.newTabContainerScrollView.setViewPager(binding.viewPager)
 
         if (!useTopBar) {
-            binding.autoCompleteBottomFadeContainer.isVisible = false
             binding.ddgLogoContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 topMargin -= resources.getDimensionPixelSize(R.dimen.inputScreenLogoBottomBarTopMargin)
             }
@@ -300,7 +298,6 @@ class InputScreenFragment : DuckDuckGoFragment(R.layout.fragment_input_screen) {
         logoAnimator = null
         binding.ddgLogo.clearAnimation()
         binding.ddgLogoContainer.animate().cancel()
-        binding.autoCompleteOverlay.animate().cancel()
         binding.newTabContainerScrollView.animate().cancel()
         binding.viewPager.unregisterOnPageChangeCallback(pageChangeCallback)
         globalLayoutListener?.let {
@@ -414,6 +411,63 @@ class InputScreenFragment : DuckDuckGoFragment(R.layout.fragment_input_screen) {
         pagerAdapter = InputScreenPagerAdapter(this)
         binding.viewPager.adapter = pagerAdapter
         binding.viewPager.registerOnPageChangeCallback(pageChangeCallback)
+
+        var isScrolling = false
+        var pageBeforeScroll = 0
+
+        binding.viewPager.setPageTransformer { page, position ->
+            page.apply {
+                translationX = -position * width
+
+                val recyclerView = binding.viewPager.getChildAt(0) as? RecyclerView
+                val viewHolder = recyclerView?.findContainingViewHolder(page)
+                val pagePosition = viewHolder?.bindingAdapterPosition ?: -1
+
+                when {
+                    isScrolling && pagePosition == pageBeforeScroll -> {
+                        // Old page - visible until halfway through swipe (position <= 0.5)
+                        alpha = if (kotlin.math.abs(position) < 0.5f) 1f else 0f
+                    }
+                    isScrolling -> {
+                        // New page - hidden during swipe
+                        alpha = 0f
+                    }
+                    pagePosition == binding.viewPager.currentItem -> {
+                        // Current page when not scrolling
+                        alpha = 1f
+                    }
+                    else -> {
+                        // Other pages
+                        alpha = 0f
+                    }
+                }
+            }
+        }
+
+        // Fade in new page when swipe completes
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrollStateChanged(state: Int) {
+                when (state) {
+                    ViewPager2.SCROLL_STATE_DRAGGING -> {
+                        isScrolling = true
+                        pageBeforeScroll = binding.viewPager.currentItem
+                    }
+                    ViewPager2.SCROLL_STATE_IDLE -> {
+                        isScrolling = false
+                        // Swipe completed - fade in new page
+                        val recyclerView = binding.viewPager.getChildAt(0) as? RecyclerView
+                        val currentViewHolder = recyclerView?.findViewHolderForAdapterPosition(binding.viewPager.currentItem)
+                        currentViewHolder?.itemView?.let { view ->
+                            view.alpha = 0f
+                            view.animate()
+                                .alpha(1f)
+                                .setDuration(200)
+                                .start()
+                        }
+                    }
+                }
+            }
+        })
     }
 
     private fun configureOmnibar(tabs: Int, useTopBar: Boolean) =
@@ -664,11 +718,7 @@ class InputScreenFragment : DuckDuckGoFragment(R.layout.fragment_input_screen) {
     }
 
     private fun hideAutoCompleteIfOnChatTab(state: InputScreenVisibilityState) {
-        if (!state.searchMode && autoCompleteTargetVisibility) {
-            autoCompleteTargetVisibility = false
-            binding.autoCompleteOverlay.animate().cancel()
-            hideAutoComplete()
-        }
+        // No-op: autocomplete visibility is now managed by SearchTabFragment and PageTransformer
     }
 
     private fun updateMenuIconButton(useBottomSheetMenu: Boolean) {
@@ -694,61 +744,8 @@ class InputScreenFragment : DuckDuckGoFragment(R.layout.fragment_input_screen) {
 
     fun getFavoritesContainer(): FrameLayout = binding.newTabContainerLayout
 
-    fun getAutoCompleteRecyclerView(): SwipeableRecyclerView {
-        return binding.autoCompleteSuggestionsList
-    }
-
-    fun getAutoCompleteBottomFadeContainer(): FrameLayout {
-        return binding.autoCompleteBottomFadeContainer
-    }
-
     fun getViewPager(): ViewPager2 {
         return binding.viewPager
-    }
-
-    fun updateAutoCompleteVisibility(visible: Boolean) {
-        val shouldShow = visible && viewModel.visibilityState.value.searchMode
-        if (autoCompleteTargetVisibility == shouldShow) return
-
-        autoCompleteTargetVisibility = shouldShow
-        binding.autoCompleteOverlay.animate().cancel()
-        beginRootTransition()
-        if (shouldShow) showAutoComplete() else hideAutoComplete()
-    }
-
-    private fun showAutoComplete() {
-        val overlay = binding.autoCompleteOverlay
-        disableViewPagerInput()
-        overlay.elevation = 3f.toPx()
-        overlay.alpha = 0f
-        overlay.isVisible = true
-        overlay.bringToFront()
-        overlay.animate()
-            .alpha(1f)
-            .setDuration(FAVORITES_ANIMATION_DURATION)
-            .setInterpolator(android.view.animation.DecelerateInterpolator())
-            .setUpdateListener { invalidateBlurView() }
-            .start()
-    }
-
-    private fun hideAutoComplete() {
-        val overlay = binding.autoCompleteOverlay
-        overlay.animate()
-            .alpha(0f)
-            .setDuration(FAVORITES_ANIMATION_DURATION)
-            .setInterpolator(android.view.animation.AccelerateInterpolator())
-            .setUpdateListener { invalidateBlurView() }
-            .withEndAction {
-                overlay.isVisible = false
-                overlay.alpha = 1f
-                overlay.elevation = 0f
-                enableViewPagerInputIfNoFavorites()
-            }
-            .start()
-    }
-
-    private fun invalidateBlurView() {
-        binding.autoCompleteBottomFadeContainer.getChildAt(0)?.invalidate()
     }
 
     fun onFavoritesContentChanged(hasContent: Boolean) {

@@ -21,9 +21,11 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.OVER_SCROLL_NEVER
 import android.view.ViewTreeObserver
-import android.widget.FrameLayout
+import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,9 +37,11 @@ import com.duckduckgo.browser.ui.autocomplete.BrowserAutoCompleteSuggestionsAdap
 import com.duckduckgo.common.ui.DuckDuckGoFragment
 import com.duckduckgo.common.ui.view.dialog.TextAlertDialogBuilder
 import com.duckduckgo.common.ui.view.toPx
+import com.duckduckgo.common.ui.viewbinding.viewBinding
 import com.duckduckgo.common.utils.FragmentViewModelFactory
 import com.duckduckgo.di.scopes.FragmentScope
 import com.duckduckgo.duckchat.impl.R
+import com.duckduckgo.duckchat.impl.databinding.FragmentSearchTabBinding
 import com.duckduckgo.duckchat.impl.inputscreen.ui.InputScreenConfigResolver
 import com.duckduckgo.duckchat.impl.inputscreen.ui.InputScreenFragment
 import com.duckduckgo.duckchat.impl.inputscreen.ui.command.SearchCommand
@@ -45,7 +49,6 @@ import com.duckduckgo.duckchat.impl.inputscreen.ui.command.SearchCommand.Restore
 import com.duckduckgo.duckchat.impl.inputscreen.ui.command.SearchCommand.ShowRemoveSearchSuggestionDialog
 import com.duckduckgo.duckchat.impl.inputscreen.ui.view.BottomBlurView
 import com.duckduckgo.duckchat.impl.inputscreen.ui.view.RecyclerBottomSpacingDecoration
-import com.duckduckgo.duckchat.impl.inputscreen.ui.view.SwipeableRecyclerView
 import com.duckduckgo.duckchat.impl.inputscreen.ui.viewmodel.InputScreenViewModel
 import com.duckduckgo.navigation.api.GlobalActivityStarter
 import com.duckduckgo.newtabpage.api.NewTabPageProvider
@@ -72,7 +75,7 @@ class SearchTabFragment : DuckDuckGoFragment(R.layout.fragment_search_tab) {
         ViewModelProvider(requireParentFragment(), viewModelFactory)[InputScreenViewModel::class.java]
     }
 
-    private var autoCompleteRecyclerView: SwipeableRecyclerView? = null
+    private val binding: FragmentSearchTabBinding by viewBinding()
     private lateinit var autoCompleteSuggestionsAdapter: BrowserAutoCompleteSuggestionsAdapter
     private var newTabPageView: View? = null
 
@@ -94,16 +97,14 @@ class SearchTabFragment : DuckDuckGoFragment(R.layout.fragment_search_tab) {
 
     private fun configureBottomBlur() {
         if (VERSION.SDK_INT >= 33 && inputScreenConfigResolver.useTopBar()) {
-            val recyclerView = autoCompleteRecyclerView ?: return
-            val parentFragment = requireParentFragment() as InputScreenFragment
-            val bottomFadeContainer = parentFragment.getAutoCompleteBottomFadeContainer()
+            val recyclerView = binding.autoCompleteSuggestionsList
 
             // TODO: Handle overscroll when blurring
             recyclerView.overScrollMode = OVER_SCROLL_NEVER
 
             bottomBlurView = BottomBlurView(requireContext())
             bottomBlurView?.setTargetView(recyclerView)
-            bottomFadeContainer.addView(bottomBlurView)
+            binding.autoCompleteBottomFadeContainer.addView(bottomBlurView)
 
             recyclerView.addOnScrollListener(
                 object : RecyclerView.OnScrollListener() {
@@ -157,10 +158,8 @@ class SearchTabFragment : DuckDuckGoFragment(R.layout.fragment_search_tab) {
 
     private fun configureAutoComplete() {
         val context = context ?: return
-        val parentFragment = requireParentFragment() as InputScreenFragment
 
-        autoCompleteRecyclerView = parentFragment.getAutoCompleteRecyclerView().apply {
-            setViewPager(parentFragment.getViewPager())
+        binding.autoCompleteSuggestionsList.apply {
             layoutManager = LinearLayoutManager(context)
             val typedValue = android.util.TypedValue()
             context.theme.resolveAttribute(com.duckduckgo.mobile.android.R.attr.daxColorBrowserOverlay, typedValue, true)
@@ -199,25 +198,33 @@ class SearchTabFragment : DuckDuckGoFragment(R.layout.fragment_search_tab) {
                     OmnibarType.SINGLE_BOTTOM
                 },
             )
-        autoCompleteRecyclerView?.adapter = autoCompleteSuggestionsAdapter
+        binding.autoCompleteSuggestionsList.adapter = autoCompleteSuggestionsAdapter
     }
 
     private fun configureObservers() {
         val parentFragment = requireParentFragment() as InputScreenFragment
 
         viewModel.visibilityState
-            .onEach {
-                parentFragment.updateAutoCompleteVisibility(it.autoCompleteSuggestionsVisible)
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { state ->
+                binding.autoCompleteSuggestionsList.isVisible = state.autoCompleteSuggestionsVisible
+                binding.autoCompleteBottomFadeContainer.isVisible = state.autoCompleteSuggestionsVisible
 
-                if (!it.autoCompleteSuggestionsVisible) {
+                // Ensure ViewPager stays enabled when autocomplete is visible
+                if (state.autoCompleteSuggestionsVisible) {
+                    parentFragment.getViewPager().isUserInputEnabled = true
+                }
+
+                if (!state.autoCompleteSuggestionsVisible) {
                     viewModel.autoCompleteSuggestionsGone()
                 }
-            }.launchIn(lifecycleScope)
+            }.launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.autoCompleteSuggestionResults
-            .onEach {
-                autoCompleteSuggestionsAdapter.updateData(it.query, it.suggestions)
-            }.launchIn(lifecycleScope)
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { results ->
+                autoCompleteSuggestionsAdapter.updateData(results.query, results.suggestions)
+            }.launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.searchTabCommand.observe(viewLifecycleOwner) {
             processCommand(it)
@@ -262,8 +269,7 @@ class SearchTabFragment : DuckDuckGoFragment(R.layout.fragment_search_tab) {
     }
 
     private fun storeAutocompletePosition() {
-        val recyclerView = autoCompleteRecyclerView ?: return
-        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+        val layoutManager = binding.autoCompleteSuggestionsList.layoutManager as LinearLayoutManager
         val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
         val itemOffsetTop = layoutManager.findViewByPosition(firstVisibleItemPosition)?.top ?: 0
         viewModel.storeAutoCompleteScrollPosition(firstVisibleItemPosition, itemOffsetTop)
@@ -273,40 +279,37 @@ class SearchTabFragment : DuckDuckGoFragment(R.layout.fragment_search_tab) {
         position: Int,
         offset: Int,
     ) {
-        val recyclerView = autoCompleteRecyclerView ?: return
         val layoutListener =
             object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
-                    recyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    binding.autoCompleteSuggestionsList.viewTreeObserver.removeOnGlobalLayoutListener(this)
                     scrollToPositionWithOffset(position, offset)
                 }
             }
-        recyclerView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+        binding.autoCompleteSuggestionsList.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
     }
 
     private fun scrollToPositionWithOffset(
         position: Int,
         offset: Int,
     ) {
-        val recyclerView = autoCompleteRecyclerView ?: return
-        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+        val layoutManager = binding.autoCompleteSuggestionsList.layoutManager as LinearLayoutManager
         layoutManager.scrollToPositionWithOffset(position, offset)
     }
 
     override fun onDestroyView() {
-        autoCompleteRecyclerView?.clearOnScrollListeners()
+        binding.autoCompleteSuggestionsList.clearOnScrollListeners()
         bottomBlurLayoutListener?.let { listener ->
-            autoCompleteRecyclerView?.removeOnLayoutChangeListener(listener)
+            binding.autoCompleteSuggestionsList.removeOnLayoutChangeListener(listener)
         }
         bottomBlurLayoutListener = null
         bottomBlurDataObserver?.let { observer ->
-            autoCompleteRecyclerView?.adapter?.unregisterAdapterDataObserver(observer)
+            binding.autoCompleteSuggestionsList.adapter?.unregisterAdapterDataObserver(observer)
         }
         bottomBlurDataObserver = null
-        (bottomBlurView?.parent as? FrameLayout)?.removeView(bottomBlurView)
+        binding.autoCompleteBottomFadeContainer.removeAllViews()
         bottomBlurView = null
-        autoCompleteRecyclerView = null
-        (newTabPageView?.parent as? FrameLayout)?.removeView(newTabPageView)
+        (newTabPageView?.parent as? androidx.constraintlayout.widget.ConstraintLayout)?.removeView(newTabPageView)
         newTabPageView = null
         super.onDestroyView()
     }
